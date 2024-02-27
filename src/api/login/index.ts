@@ -14,7 +14,7 @@ export const getRouter = (): Promise<IResponse<AppCustomRouteRecordRaw[]>> => {
 }
 
 export const loginOutApi = (): Promise<IResponse> => {
-  return request.get({ url: '/logout' })
+  return request.delete({ url: '/logout' })
 }
 
 export const getUserListApi = ({ params }: AxiosConfig) => {
