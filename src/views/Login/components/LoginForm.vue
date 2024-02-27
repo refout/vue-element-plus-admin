@@ -275,8 +275,7 @@ const getRoleRouter = async () => {
         addRoute(route as RouteRecordRaw) // 动态添加可访问路由表
       })
       permissionStore.setIsAddRouters(true)
-      console.log(permissionStore.addRouters)
-      debugger
+
       await push({ path: redirect.value || permissionStore.addRouters[0].path })
     }
   }
