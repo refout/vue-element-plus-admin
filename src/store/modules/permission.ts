@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import { asyncRouterMap, constantRouterMap } from '@/router'
+import { asyncRouterMap, constantRouterMap, indexRouterMap } from '@/router'
 import {
+  flatMultiLevelRoutes,
   generateRoutesByFrontEnd,
-  generateRoutesByServer,
-  flatMultiLevelRoutes
+  generateRoutesByServer
 } from '@/utils/routerHelper'
-import { store } from '../index'
+import { store } from '@/store'
 import { cloneDeep } from 'lodash-es'
 
 export interface PermissionState {
@@ -53,6 +53,9 @@ export const usePermissionStore = defineStore('permission', {
           // 直接读取静态路由表
           routerMap = cloneDeep(asyncRouterMap)
         }
+
+        routerMap.push(...indexRouterMap)
+
         // 动态路由，404一定要放到最后面
         this.addRouters = routerMap.concat([
           {
