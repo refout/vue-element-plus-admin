@@ -33,8 +33,7 @@ const submit = async () => {
     console.log(err)
   })
   if (valid) {
-    const formData = await getFormData()
-    return formData
+    return await getFormData()
   }
 }
 

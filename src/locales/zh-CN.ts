@@ -550,5 +550,23 @@ export default {
   inputPasswordDemo: {
     title: '密码输入框',
     inputPasswordDes: '基于 ElementPlus 的 Input 组件二次封装'
+  },
+  system: {
+    title: '系统管理',
+    user: {
+      title: '用户管理',
+      username: '用户名',
+      password: '密码',
+      nickname: '昵称',
+      email: '邮箱',
+      phone: '电话',
+      gender: '性别',
+      avatar: '头像',
+      state: '状态',
+      role: '角色',
+      index: '序号',
+      action: '操作',
+      createTime: '创建时间'
+    }
   }
 }
