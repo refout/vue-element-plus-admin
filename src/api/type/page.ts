@@ -93,4 +93,37 @@ interface In extends Column {
   in: Array<string | number | Date>
 }
 
-export { PageIn, Query, OrderBy, Scope, In }
+/**
+ * 页面输出记录
+ *
+ * @param D       数据类型
+ * @param data      数据集合
+ * @param page      当前页码
+ * @param size      每页大小
+ * @param total     总记录数
+ * @param totalPage 总页数
+ **/
+interface PageOut<D> {
+  /**
+   * 数据集合
+   */
+  data: Array<D>
+  /**
+   * 当前页码
+   */
+  page: number
+  /**
+   * 每页大小
+   */
+  size: number
+  /**
+   * 总记录数
+   */
+  total: number
+  /**
+   * 总页数
+   */
+  totalPage: number
+}
+
+export { PageIn, Query, OrderBy, Scope, In, PageOut }

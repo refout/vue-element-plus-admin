@@ -1,8 +1,8 @@
-<script setup lang="tsx">
+<script lang="tsx" setup>
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Table } from '@/components/Table'
-import { reactive, ref, unref } from 'vue'
+import { reactive, Ref, ref, unref } from 'vue'
 import { deleteUserByIdApi, saveUserApi } from '@/api/department'
 import type { DepartmentUserItem } from '@/api/department/types'
 import { useTable } from '@/hooks/web/useTable'
@@ -13,15 +13,16 @@ import { Dialog } from '@/components/Dialog'
 import { getRoleListApi } from '@/api/role'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
 import { BaseButton } from '@/components/Button'
-import { page } from '@/api/system/user'
+import { pageApi, User } from '@/api/system/user'
 import { ElTag } from 'element-plus'
+import { usageOptionApi } from '@/api/common/option'
 
 const { t } = useI18n()
 
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
     const { pageSize, currentPage } = tableState
-    const res = await page({
+    const res = await pageApi({
       page: unref(currentPage),
       size: unref(pageSize),
       query: {
@@ -45,7 +46,6 @@ const { getList, getElTableExpose, delList } = tableMethods
 const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'selection',
-
     search: {
       hidden: true
     },
@@ -101,7 +101,7 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'gender',
     label: t('system.user.gender'),
-    formatter: (_: any, __: any, cellValue: any): string => cellValue.info
+    formatter: (_: any, __: any, cellValue: any): string => cellValue.label
   },
   {
     field: 'state',
@@ -113,6 +113,22 @@ const crudSchemas = reactive<CrudSchema[]>([
             {data.row.state.info}
           </ElTag>
         )
+      }
+    },
+    search: {
+      component: 'Select',
+      value: [],
+      optionApi: async () => {
+        const option = await usageOptionApi()
+        return option.data || []
+      }
+    },
+    form: {
+      component: 'Select',
+      value: [],
+      optionApi: async () => {
+        const option = await usageOptionApi()
+        return option.data || []
       }
     }
   },
@@ -162,7 +178,8 @@ const crudSchemas = reactive<CrudSchema[]>([
       hidden: true
     },
     table: {
-      width: 240,
+      width: 200,
+      align: 'center',
       slots: {
         default: (data: any) => {
           const row = data.row as DepartmentUserItem
@@ -192,7 +209,7 @@ const crudSchemas = reactive<CrudSchema[]>([
 
 const { allSchemas } = useCrudSchemas(crudSchemas)
 
-const searchParams = ref({})
+const searchParams: Ref<User | {}> = ref({})
 const setSearchParams = (params: any) => {
   currentPage.value = 1
   searchParams.value = params
@@ -275,10 +292,10 @@ const save = async () => {
       :columns="allSchemas.tableColumns"
       :data="dataList"
       :loading="loading"
-      @register="tableRegister"
       :pagination="{
         total
       }"
+      @register="tableRegister"
     />
   </ContentWrap>
 
@@ -286,21 +303,21 @@ const save = async () => {
     <Write
       v-if="actionType !== 'detail'"
       ref="writeRef"
-      :form-schema="allSchemas.formSchema"
       :current-row="currentRow"
+      :form-schema="allSchemas.formSchema"
     />
 
     <Detail
       v-if="actionType === 'detail'"
-      :detail-schema="allSchemas.detailSchema"
       :current-row="currentRow"
+      :detail-schema="allSchemas.detailSchema"
     />
 
     <template #footer>
       <BaseButton
         v-if="actionType !== 'detail'"
-        type="primary"
         :loading="saveLoading"
+        type="primary"
         @click="save"
       >
         {{ t('exampleDemo.save') }}
