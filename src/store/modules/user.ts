@@ -77,12 +77,14 @@ export const useUserStore = defineStore('user', {
         type: 'warning'
       })
         .then(async () => {
-          const res = await loginOutApi().catch(() => {})
+          const res = await loginOutApi()
           if (res) {
             this.reset()
           }
         })
-        .catch(() => {})
+        .catch(() => {
+          this.reset()
+        })
     },
     reset() {
       const tagsViewStore = useTagsViewStore()
