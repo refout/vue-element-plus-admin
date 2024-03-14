@@ -1,15 +1,11 @@
-import request from '@/axios'
-import { PageIn, PageOut } from '@/api/type/page'
 import { Option } from '@/api/type/option'
+import { BaseApi, BaseDomain } from '@/api'
 
 const baseUrl: string = '/sys/user'
 
-export const pageApi = (data: PageIn<User | {}>): Promise<IResponse<PageOut<User>>> => {
-  return request.post({ url: baseUrl + '/page', data })
-}
+export const { pageApi, infoApi, addApi, editApi, delAllApi } = new BaseApi(baseUrl)
 
-export interface User {
-  id: bigint
+export interface User extends BaseDomain {
   username: string
   password: string
   nickname: string
