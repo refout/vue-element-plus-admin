@@ -22,3 +22,8 @@ export interface UserType {
   // role: string
   // roleId: string
 }
+
+export interface Captcha {
+  captchaId: string
+  imageBase64: string
+}

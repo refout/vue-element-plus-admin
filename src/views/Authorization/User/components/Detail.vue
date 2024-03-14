@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { PropType } from 'vue'
-import { DepartmentUserItem } from '@/api/department/types'
 import { Descriptions, DescriptionsSchema } from '@/components/Descriptions'
+import { User } from '@/api/system/user'
 
 defineProps({
   currentRow: {
-    type: Object as PropType<DepartmentUserItem>,
+    type: Object as PropType<User>,
     default: () => undefined
   },
   detailSchema: {

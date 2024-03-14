@@ -32,11 +32,11 @@ export class BaseApi<T extends BaseDomain> {
     return request.put({ url: this.baseUrl, data })
   }
 
-  public delApi = (id: bigint): Promise<IResponse<T>> => {
+  public deleteApi = (id: bigint): Promise<IResponse<T>> => {
     return request.delete({ url: this.baseUrl + '/' + id })
   }
 
-  public delAllApi = (ids: bigint[]): Promise<IResponse<T>> => {
+  public deleteAllApi = (ids: bigint[]): Promise<IResponse<T>> => {
     return request.delete({ url: this.baseUrl + '/all', data: { ids } })
   }
 }

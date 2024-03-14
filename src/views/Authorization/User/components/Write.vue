@@ -2,14 +2,14 @@
 import { Form, FormSchema } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 import { PropType, reactive, watch } from 'vue'
-import { DepartmentUserItem } from '@/api/department/types'
 import { useValidator } from '@/hooks/web/useValidator'
+import { User } from '@/api/system/user'
 
 const { required } = useValidator()
 
 const props = defineProps({
   currentRow: {
-    type: Object as PropType<DepartmentUserItem>,
+    type: Object as PropType<User>,
     default: () => undefined
   },
   formSchema: {

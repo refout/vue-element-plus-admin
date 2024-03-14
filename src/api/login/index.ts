@@ -1,5 +1,6 @@
 import request from '@/axios'
 import type { UserLoginType, UserTokenType, UserType } from './types'
+import { Captcha } from './types'
 
 export const loginApi = (data: UserLoginType): Promise<IResponse<UserTokenType>> => {
   return request.post({ url: '/login', data })
@@ -17,26 +18,11 @@ export const loginOutApi = (): Promise<IResponse> => {
   return request.delete({ url: '/logout' })
 }
 
-export const getUserListApi = ({ params }: AxiosConfig) => {
-  return request.get<{
-    code: string
-    data: {
-      list: UserType[]
-      total: number
-    }
-  }>({ url: '/mock/user/list', params })
-}
-
-interface RoleParams {
-  roleName: string
-}
-
-export const getAdminRoleApi = (
-  params: RoleParams
-): Promise<IResponse<AppCustomRouteRecordRaw[]>> => {
-  return request.get({ url: '/mock/role/list', params })
-}
-
-export const getTestRoleApi = (params: RoleParams): Promise<IResponse<string[]>> => {
-  return request.get({ url: '/mock/role/list2', params })
+export const getCaptcha = (
+  r: number,
+  g: number,
+  b: number,
+  a: number
+): Promise<IResponse<Captcha>> => {
+  return request.get({ url: `/captcha/${r}/${g}/${b}/${a}` })
 }

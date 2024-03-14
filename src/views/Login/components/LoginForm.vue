@@ -2,9 +2,9 @@
 import { onMounted, reactive, ref, unref, watch } from 'vue'
 import { Form, FormSchema } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCheckbox, ElLink } from 'element-plus'
+import { ElCheckbox, ElInput, ElLink } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
-import { getRouter, getUserInfo, loginApi } from '@/api/login'
+import { getCaptcha, getRouter, getUserInfo, loginApi } from '@/api/login'
 import { useAppStore } from '@/store/modules/app'
 import { usePermissionStore } from '@/store/modules/permission'
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
@@ -31,7 +31,8 @@ const { t } = useI18n()
 
 const rules = {
   username: [required()],
-  password: [required()]
+  password: [required()],
+  captchaCode: [required()]
 }
 
 const schema = reactive<FormSchema[]>([
@@ -50,20 +51,18 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'username',
-    label: t('login.username'),
-    // value: 'admin',
+    label: '用户名',
     component: 'Input',
     colProps: {
       span: 24
     },
     componentProps: {
-      placeholder: 'admin or test'
+      placeholder: '请输入用户名'
     }
   },
   {
     field: 'password',
-    label: t('login.password'),
-    // value: 'admin',
+    label: '密码',
     component: 'InputPassword',
     colProps: {
       span: 24
@@ -72,7 +71,30 @@ const schema = reactive<FormSchema[]>([
       style: {
         width: '100%'
       },
-      placeholder: 'admin or test'
+      placeholder: '请输入密码'
+    }
+  },
+  {
+    field: 'captchaCode',
+    label: '验证码',
+    colProps: {
+      span: 24
+    },
+    formItemProps: {
+      slots: {
+        default: (formData) => {
+          return (
+            <>
+              <div class="w-[70%] flex">
+                <ElInput v-model={formData.captchaCode} placeholder={t('login.codePlaceholder')} />
+              </div>
+              <div class="w-[25%] flex" style="margin-left: 10px; height: 38px;">
+                <img src={captchaImg.value} onClick={loadCaptcha} alt="captcha" />
+              </div>
+            </>
+          )
+        }
+      }
     }
   },
   {
@@ -219,6 +241,17 @@ watch(
     immediate: true
   }
 )
+const captchaImg = ref<string>('')
+const captchaId = ref<string>('')
+
+const loadCaptcha = () => {
+  getCaptcha(41, 49, 70, 255).then((res) => {
+    captchaImg.value = res.data.imageBase64
+    captchaId.value = res.data.captchaId
+  })
+}
+
+loadCaptcha()
 
 // 登录
 const signIn = async () => {
@@ -227,7 +260,7 @@ const signIn = async () => {
     if (isValid) {
       loading.value = true
       const formData = await getFormData<UserLoginType>()
-
+      formData.captchaId = captchaId.value
       try {
         const res = await loginApi(formData)
 
@@ -253,6 +286,8 @@ const signIn = async () => {
             permissionStore.setIsAddRouters(true)
             await push({ path: redirect.value || permissionStore.addRouters[0].path })
           }
+        } else {
+          loadCaptcha()
         }
       } finally {
         loading.value = false
@@ -291,7 +326,7 @@ const toRegister = () => {
     :schema="schema"
     :rules="rules"
     label-position="top"
-    hide-required-asterisk
+    :hide-required-asterisk="true"
     size="large"
     class="dark:(border-1 border-[var(--el-border-color)] border-solid)"
     @register="formRegister"
