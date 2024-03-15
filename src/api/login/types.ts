@@ -1,8 +1,8 @@
 export interface UserLoginType {
   username: string
   password: string
-  captchaId: string
-  captchaCode: string
+  captchaId?: string
+  captchaCode?: string
 }
 
 export interface UserTokenType {
@@ -24,6 +24,7 @@ export interface UserType {
 }
 
 export interface Captcha {
-  captchaId: string
-  imageBase64: string
+  captchaId?: string
+  imageBase64?: string
+  enable: boolean
 }

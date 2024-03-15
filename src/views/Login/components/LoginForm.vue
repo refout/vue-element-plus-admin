@@ -1,4 +1,4 @@
-<script setup lang="tsx">
+<script lang="tsx" setup>
 import { onMounted, reactive, ref, unref, watch } from 'vue'
 import { Form, FormSchema } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -9,7 +9,7 @@ import { useAppStore } from '@/store/modules/app'
 import { usePermissionStore } from '@/store/modules/permission'
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
 import { useRouter } from 'vue-router'
-import { UserLoginType } from '@/api/login/types'
+import { Captcha, UserLoginType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
 import { Icon } from '@/components/Icon'
 import { useUserStore } from '@/store/modules/user'
@@ -34,6 +34,18 @@ const rules = {
   password: [required()],
   captchaCode: [required()]
 }
+
+const captcha = ref<Captcha>({ enable: true })
+const loadCaptcha = () => {
+  const { r, g, b, a } = appStore.getIsDark
+    ? { r: 32, g: 35, b: 40, a: 200 }
+    : { r: 255, g: 255, b: 255, a: 200 }
+  getCaptcha(r, g, b, a, 120, 38).then((res) => {
+    captcha.value = res.data
+  })
+}
+
+loadCaptcha()
 
 const schema = reactive<FormSchema[]>([
   {
@@ -75,6 +87,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
+    remove: !captcha.value.enable,
     field: 'captchaCode',
     label: '验证码',
     colProps: {
@@ -86,10 +99,19 @@ const schema = reactive<FormSchema[]>([
           return (
             <>
               <div class="w-[70%] flex">
-                <ElInput v-model={formData.captchaCode} placeholder={t('login.codePlaceholder')} />
+                <ElInput
+                  style="padding:0"
+                  v-model={formData.captchaCode}
+                  placeholder={t('login.codePlaceholder')}
+                />
               </div>
-              <div class="w-[25%] flex" style="margin-left: 10px; height: 38px;">
-                <img src={captchaImg.value} onClick={loadCaptcha} alt="captcha" />
+              <div class="w-[30%] flex">
+                <img
+                  src={captcha.value.imageBase64}
+                  onClick={loadCaptcha}
+                  alt="captcha"
+                  style="border-radius: 3px; margin-left: 10px;"
+                />
               </div>
             </>
           )
@@ -241,17 +263,6 @@ watch(
     immediate: true
   }
 )
-const captchaImg = ref<string>('')
-const captchaId = ref<string>('')
-
-const loadCaptcha = () => {
-  getCaptcha(41, 49, 70, 255).then((res) => {
-    captchaImg.value = res.data.imageBase64
-    captchaId.value = res.data.captchaId
-  })
-}
-
-loadCaptcha()
 
 // 登录
 const signIn = async () => {
@@ -260,7 +271,7 @@ const signIn = async () => {
     if (isValid) {
       loading.value = true
       const formData = await getFormData<UserLoginType>()
-      formData.captchaId = captchaId.value
+      formData.captchaId = captcha.value.captchaId
       try {
         const res = await loginApi(formData)
 
@@ -323,12 +334,12 @@ const toRegister = () => {
 
 <template>
   <Form
-    :schema="schema"
-    :rules="rules"
-    label-position="top"
     :hide-required-asterisk="true"
-    size="large"
+    :rules="rules"
+    :schema="schema"
     class="dark:(border-1 border-[var(--el-border-color)] border-solid)"
+    label-position="top"
+    size="large"
     @register="formRegister"
   />
 </template>

@@ -22,7 +22,9 @@ export const getCaptcha = (
   r: number,
   g: number,
   b: number,
-  a: number
+  a: number,
+  width: number,
+  height: number
 ): Promise<IResponse<Captcha>> => {
-  return request.get({ url: `/captcha/${r}/${g}/${b}/${a}` })
+  return request.get({ url: `/captcha/${r}/${g}/${b}/${a}/${width}/${height}` })
 }
