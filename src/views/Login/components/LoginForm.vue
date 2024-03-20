@@ -1,22 +1,31 @@
 <script lang="tsx" setup>
 import { onMounted, reactive, ref, unref, watch } from 'vue'
-import { Form, FormSchema } from '@/components/Form'
-import { useI18n } from '@/hooks/web/useI18n'
-import { ElCheckbox, ElInput, ElLink } from 'element-plus'
-import { useForm } from '@/hooks/web/useForm'
+import type { FormInstance, FormRules } from 'element-plus'
+import {
+  ElButton,
+  ElCheckbox,
+  ElCol,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElLink,
+  ElRow
+} from 'element-plus'
+// import { useForm } from '@/hooks/web/useForm'
 import { getCaptcha, getRouter, getUserInfo, loginApi } from '@/api/login'
 import { useAppStore } from '@/store/modules/app'
 import { usePermissionStore } from '@/store/modules/permission'
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { Captcha, UserLoginType } from '@/api/login/types'
-import { useValidator } from '@/hooks/web/useValidator'
-import { Icon } from '@/components/Icon'
+
 import { useUserStore } from '@/store/modules/user'
-import { BaseButton } from '@/components/Button'
 
-const { required } = useValidator()
-
+const rules = reactive<FormRules<UserLoginType>>({
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  captchaCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+})
 const emit = defineEmits(['to-register'])
 
 const appStore = useAppStore()
@@ -27,230 +36,32 @@ const permissionStore = usePermissionStore()
 
 const { currentRoute, addRoute, push } = useRouter()
 
-const { t } = useI18n()
-
-const rules = {
-  username: [required()],
-  password: [required()],
-  captchaCode: [required()]
-}
-
 const captcha = ref<Captcha>({ enable: true })
-const loadCaptcha = () => {
+const loadCaptcha = async () => {
   const { r, g, b, a } = appStore.getIsDark
     ? { r: 32, g: 35, b: 40, a: 200 }
     : { r: 255, g: 255, b: 255, a: 200 }
-  getCaptcha(r, g, b, a, 120, 38).then((res) => {
-    captcha.value = res.data
-  })
+  const c = await getCaptcha(r, g, b, a, 120, 38)
+  captcha.value = c.data
+  form.captchaId = c.data.captchaId
 }
-
-loadCaptcha()
-
-const schema = reactive<FormSchema[]>([
-  {
-    field: 'title',
-    colProps: {
-      span: 24
-    },
-    formItemProps: {
-      slots: {
-        default: () => {
-          return <h2 class="text-2xl font-bold text-center w-[100%]">{t('login.login')}</h2>
-        }
-      }
-    }
-  },
-  {
-    field: 'username',
-    label: '用户名',
-    component: 'Input',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      placeholder: '请输入用户名'
-    }
-  },
-  {
-    field: 'password',
-    label: '密码',
-    component: 'InputPassword',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      style: {
-        width: '100%'
-      },
-      placeholder: '请输入密码'
-    }
-  },
-  {
-    remove: !captcha.value.enable,
-    field: 'captchaCode',
-    label: '验证码',
-    colProps: {
-      span: 24
-    },
-    formItemProps: {
-      slots: {
-        default: (formData) => {
-          return (
-            <>
-              <div class="w-[70%] flex">
-                <ElInput
-                  style="padding:0"
-                  v-model={formData.captchaCode}
-                  placeholder={t('login.codePlaceholder')}
-                />
-              </div>
-              <div class="w-[30%] flex">
-                <img
-                  src={captcha.value.imageBase64}
-                  onClick={loadCaptcha}
-                  alt="captcha"
-                  style="border-radius: 3px; margin-left: 10px;"
-                />
-              </div>
-            </>
-          )
-        }
-      }
-    }
-  },
-  {
-    field: 'tool',
-    colProps: {
-      span: 24
-    },
-    formItemProps: {
-      slots: {
-        default: () => {
-          return (
-            <>
-              <div class="flex justify-between items-center w-[100%]">
-                <ElCheckbox v-model={remember.value} label={t('login.remember')} size="small" />
-                <ElLink type="primary" underline={false}>
-                  {t('login.forgetPassword')}
-                </ElLink>
-              </div>
-            </>
-          )
-        }
-      }
-    }
-  },
-  {
-    field: 'login',
-    colProps: {
-      span: 24
-    },
-    formItemProps: {
-      slots: {
-        default: () => {
-          return (
-            <>
-              <div class="w-[100%]">
-                <BaseButton
-                  loading={loading.value}
-                  type="primary"
-                  class="w-[100%]"
-                  onClick={signIn}
-                >
-                  {t('login.login')}
-                </BaseButton>
-              </div>
-              <div class="w-[100%] mt-15px">
-                <BaseButton class="w-[100%]" onClick={toRegister}>
-                  {t('login.register')}
-                </BaseButton>
-              </div>
-            </>
-          )
-        }
-      }
-    }
-  },
-  {
-    field: 'other',
-    component: 'Divider',
-    label: t('login.otherLogin'),
-    componentProps: {
-      contentPosition: 'center'
-    }
-  },
-  {
-    field: 'otherIcon',
-    colProps: {
-      span: 24
-    },
-    formItemProps: {
-      slots: {
-        default: () => {
-          return (
-            <>
-              <div class="flex justify-between w-[100%]">
-                <Icon
-                  icon="ant-design:github-filled"
-                  size={iconSize}
-                  class="cursor-pointer ant-icon"
-                  color={iconColor}
-                  hoverColor={hoverColor}
-                />
-                <Icon
-                  icon="ant-design:wechat-filled"
-                  size={iconSize}
-                  class="cursor-pointer ant-icon"
-                  color={iconColor}
-                  hoverColor={hoverColor}
-                />
-                <Icon
-                  icon="ant-design:alipay-circle-filled"
-                  size={iconSize}
-                  color={iconColor}
-                  hoverColor={hoverColor}
-                  class="cursor-pointer ant-icon"
-                />
-                <Icon
-                  icon="ant-design:weibo-circle-filled"
-                  size={iconSize}
-                  color={iconColor}
-                  hoverColor={hoverColor}
-                  class="cursor-pointer ant-icon"
-                />
-              </div>
-            </>
-          )
-        }
-      }
-    }
-  }
-])
-
-const iconSize = 30
 
 const remember = ref(userStore.getRememberMe)
 
-const initLoginInfo = () => {
+const initLoginInfo = async () => {
   const loginInfo = userStore.getLoginInfo
   if (loginInfo) {
     const { username, password } = loginInfo
-    setValues({ username, password })
+    form.password = password
+    form.username = username
   }
+  await loadCaptcha()
 }
 onMounted(() => {
   initLoginInfo()
 })
 
-const { formRegister, formMethods } = useForm()
-const { getFormData, getElFormExpose, setValues } = formMethods
-
 const loading = ref(false)
-
-const iconColor = '#999'
-
-const hoverColor = 'var(--el-color-primary)'
 
 const redirect = ref<string>('')
 
@@ -264,21 +75,29 @@ watch(
   }
 )
 
+const form = reactive<UserLoginType>({
+  username: null,
+  password: null,
+  captchaCode: null,
+  captchaId: null
+})
+
+const ruleFormRef = ref<FormInstance>()
 // 登录
-const signIn = async () => {
-  const formRef = await getElFormExpose()
-  await formRef?.validate(async (isValid) => {
+const login = async (formRef: FormInstance | undefined) => {
+  if (!formRef) {
+    return
+  }
+  await formRef.validate(async (isValid) => {
     if (isValid) {
       loading.value = true
-      const formData = await getFormData<UserLoginType>()
-      formData.captchaId = captcha.value.captchaId
       try {
-        const res = await loginApi(formData)
+        const res = await loginApi(form)
 
         if (res) {
           // 是否记住我
           if (unref(remember)) {
-            userStore.setLoginInfo(formData)
+            userStore.setLoginInfo(form)
           } else {
             userStore.setLoginInfo(undefined)
           }
@@ -298,7 +117,7 @@ const signIn = async () => {
             await push({ path: redirect.value || permissionStore.addRouters[0].path })
           }
         } else {
-          loadCaptcha()
+          await loadCaptcha()
         }
       } finally {
         loading.value = false
@@ -333,13 +152,67 @@ const toRegister = () => {
 </script>
 
 <template>
-  <Form
-    :hide-required-asterisk="true"
-    :rules="rules"
-    :schema="schema"
-    class="dark:(border-1 border-[var(--el-border-color)] border-solid)"
-    label-position="top"
+  <el-form
     size="large"
-    @register="formRegister"
-  />
+    label-position="top"
+    hide-required-asterisk
+    ref="ruleFormRef"
+    :model="form"
+    status-icon
+    :rules="rules"
+    class="dark:(border-1 border-[var(--el-border-color)] border-solid)"
+  >
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-form-item>
+          <h2 class="text-2xl font-bold text-center w-[100%]">登录</h2>
+        </el-form-item>
+      </el-col>
+      <el-col :span="24">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="form.username" placeholder="请输入用户名" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="24">
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password" type="password" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="24">
+        <el-form-item v-if="captcha.enable" label="验证码" prop="captchaCode">
+          <div class="w-[70%] flex">
+            <el-input v-model.number="form.captchaCode" />
+          </div>
+          <div class="w-[30%] flex">
+            <img
+              :src="captcha.imageBase64"
+              @click="loadCaptcha"
+              alt="captcha"
+              style=" margin-left: 10px;border-radius: 3px"
+            />
+          </div>
+        </el-form-item>
+      </el-col>
+      <el-col :span="24">
+        <el-form-item>
+          <div class="flex justify-between items-center w-[100%]">
+            <el-checkbox v-model="remember" label="记住我" size="small" />
+            <el-link type="primary" :underline="false"> 忘记密码</el-link>
+          </div>
+        </el-form-item>
+      </el-col>
+      <el-col :span="24">
+        <el-form-item>
+          <el-button :loading="loading" type="primary" @click="login(ruleFormRef)" class="w-[100%]">
+            登录
+          </el-button>
+        </el-form-item>
+      </el-col>
+      <el-col :span="24">
+        <el-form-item>
+          <el-button class="w-[100%]" @click="toRegister">注册</el-button>
+        </el-form-item>
+      </el-col>
+    </el-row>
+  </el-form>
 </template>

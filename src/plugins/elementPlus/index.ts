@@ -19,6 +19,7 @@ export const setupElementPlus = (app: App<Element>) => {
   }
 
   components.forEach((component) => {
+    console.log(component)
     app.component(component.name!, component)
   })
 }
