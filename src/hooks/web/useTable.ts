@@ -1,7 +1,7 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { Table, TableExpose, TableProps, TableSetProps, TableColumn } from '@/components/Table'
-import { ElTable, ElMessageBox, ElMessage } from 'element-plus'
-import { ref, watch, unref, nextTick, onMounted } from 'vue'
+import { Table, TableColumn, TableExpose, TableProps, TableSetProps } from '@/components/Table'
+import { ElMessage, ElMessageBox, ElTable } from 'element-plus'
+import { nextTick, onMounted, ref, unref, watch } from 'vue'
 
 const { t } = useI18n()
 
@@ -29,7 +29,7 @@ export const useTable = (config: UseTableConfig) => {
   watch(
     () => currentPage.value,
     () => {
-      methods.getList()
+      methods.getList().then(() => {})
     }
   )
 
@@ -37,18 +37,14 @@ export const useTable = (config: UseTableConfig) => {
     () => pageSize.value,
     () => {
       // 当前页不为1时，修改页数后会导致多次调用getList方法
-      if (unref(currentPage) === 1) {
-        methods.getList()
-      } else {
-        currentPage.value = 1
-        methods.getList()
-      }
+      currentPage.value = 1
+      methods.getList().then(() => {})
     }
   )
 
   onMounted(() => {
     if (immediate) {
-      methods.getList()
+      methods.getList().then(() => {})
     }
   })
 
@@ -80,7 +76,6 @@ export const useTable = (config: UseTableConfig) => {
       loading.value = true
       try {
         const res = await config?.fetchDataApi()
-        console.log('fetchDataApi res', res)
         if (res) {
           dataList.value = res.list
           total.value = res.total || 0
@@ -139,7 +134,7 @@ export const useTable = (config: UseTableConfig) => {
     },
 
     refresh: () => {
-      methods.getList()
+      methods.getList().then(() => {})
     },
 
     // sortableChange: (e: any) => {
@@ -165,15 +160,13 @@ export const useTable = (config: UseTableConfig) => {
           ElMessage.success(t('common.delSuccess'))
 
           // 计算出临界点
-          const current =
+          currentPage.value =
             unref(total) % unref(pageSize) === idsLength || unref(pageSize) === 1
               ? unref(currentPage) > 1
                 ? unref(currentPage) - 1
                 : unref(currentPage)
               : unref(currentPage)
-
-          currentPage.value = current
-          methods.getList()
+          await methods.getList()
         }
       })
     }

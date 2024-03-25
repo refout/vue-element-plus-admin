@@ -1,11 +1,11 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { PropType } from 'vue'
 import { Descriptions, DescriptionsSchema } from '@/components/Descriptions'
-import { User } from '@/api/system/user'
+import { Config } from '@/api/system/config'
 
 defineProps({
   currentRow: {
-    type: Object as PropType<User>,
+    type: Object as PropType<Config>,
     default: () => undefined
   },
   detailSchema: {
@@ -16,5 +16,5 @@ defineProps({
 </script>
 
 <template>
-  <Descriptions :schema="detailSchema" :data="currentRow || {}" />
+  <Descriptions :data="currentRow || {}" :schema="detailSchema" />
 </template>

@@ -54,17 +54,14 @@ export const useCrudSchemas = (
   })
 
   const searchSchema = filterSearchSchema(crudSchema)
-  // @ts-ignore
   allSchemas.searchSchema = searchSchema || []
 
   const tableColumns = filterTableSchema(crudSchema)
   allSchemas.tableColumns = tableColumns || []
 
-  const formSchema = filterFormSchema(crudSchema)
-  allSchemas.formSchema = formSchema
+  allSchemas.formSchema = filterFormSchema(crudSchema)
 
-  const detailSchema = filterDescriptionsSchema(crudSchema)
-  allSchemas.detailSchema = detailSchema
+  allSchemas.detailSchema = filterDescriptionsSchema(crudSchema)
 
   return {
     allSchemas
@@ -136,7 +133,7 @@ const filterFormSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
 
 // 过滤 descriptions 结构
 const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[] => {
-  const descriptionsSchema: FormSchema[] = []
+  const descriptionSchema: FormSchema[] = []
 
   eachTree(crudSchema, (schemaItem: CrudSchema) => {
     // 判断是否隐藏
@@ -150,9 +147,9 @@ const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[
       // 删除不必要的字段
       delete descriptionsSchemaItem.hidden
 
-      descriptionsSchema.push(descriptionsSchemaItem)
+      descriptionSchema.push(descriptionsSchemaItem)
     }
   })
 
-  return descriptionsSchema
+  return descriptionSchema
 }

@@ -29,6 +29,7 @@ const toLogin = () => {
 
 const themeChange = () => {
   const color = getCssVar('--el-bg-color')
+  console.log(color)
   appStore.setMenuTheme(color)
   appStore.setHeaderTheme(color)
 }
@@ -39,7 +40,7 @@ const themeChange = () => {
     :class="prefixCls"
     class="h-[100%] relative lt-xl:bg-[var(--login-bg-color)] lt-sm:px-10px lt-xl:px-10px lt-md:px-10px"
   >
-    <ElScrollbar class="h-full">
+    <ElScrollbar class="h-auto">
       <div class="relative flex mx-auto min-h-100vh">
         <div
           :class="`${prefixCls}__left flex-1 bg-gray-500 bg-opacity-20 relative p-30px lt-xl:hidden`"
