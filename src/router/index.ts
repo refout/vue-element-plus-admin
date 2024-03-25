@@ -79,6 +79,29 @@ export const constantRouterMap: AppRouteRecordRaw[] = [
     }
   },
   {
+    path: '/personal',
+    component: Layout,
+    redirect: '/personal/personal-center',
+    name: 'Personal',
+    meta: {
+      title: t('router.personal'),
+      hidden: true,
+      canTo: true
+    },
+    children: [
+      {
+        path: 'personal-center',
+        component: () => import('@/views/Personal/PersonalCenter/PersonalCenter.vue'),
+        name: 'PersonalCenter',
+        meta: {
+          title: t('router.personalCenter'),
+          hidden: true,
+          canTo: true
+        }
+      }
+    ]
+  },
+  {
     path: '/404',
     component: () => import('@/views/Error/404.vue'),
     name: 'NoFind',
@@ -400,6 +423,22 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
         name: 'VideoPlayer',
         meta: {
           title: t('router.videoPlayer')
+        }
+      },
+      {
+        path: 'avatars',
+        component: () => import('@/views/Components/Avatars.vue'),
+        name: 'Avatars',
+        meta: {
+          title: t('router.avatars')
+        }
+      },
+      {
+        path: 'i-agree',
+        component: () => import('@/views/Components/IAgree.vue'),
+        name: 'IAgree',
+        meta: {
+          title: t('router.iAgree')
         }
       }
     ]

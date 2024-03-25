@@ -1052,11 +1052,7 @@ const schema = reactive<FormSchema[]>([
       slots: {
         default: (options: RadioOption[]) => {
           return options?.map((v) => {
-            return (
-              <ElRadio label={v.value}>
-                {v.label}({v.value})
-              </ElRadio>
-            )
+            return <ElRadio label={v.label + `(${v.value})`} value={v.value} />
           })
         }
       }
@@ -1097,11 +1093,7 @@ const schema = reactive<FormSchema[]>([
       slots: {
         default: (options: RadioOption[]) => {
           return options?.map((v) => {
-            return (
-              <ElRadioButton label={v.value}>
-                {v.label}({v.value})
-              </ElRadioButton>
-            )
+            return <ElRadioButton label={v.label + `(${v.value})`} value={v.value} />
           })
         }
       }
@@ -1157,11 +1149,7 @@ const schema = reactive<FormSchema[]>([
       slots: {
         default: (options: CheckboxOption[]) => {
           return options?.map((v) => {
-            return (
-              <ElCheckbox label={v.value}>
-                {v.label}({v.value})
-              </ElCheckbox>
-            )
+            return <ElCheckbox label={v.label + `(${v.value})`} value={v.value} />
           })
         }
       }
@@ -1214,11 +1202,7 @@ const schema = reactive<FormSchema[]>([
       slots: {
         default: (options: CheckboxOption[]) => {
           return options?.map((v) => {
-            return (
-              <ElCheckboxButton label={v.value}>
-                {v.label}({v.value})
-              </ElCheckboxButton>
-            )
+            return <ElCheckboxButton label={v.label + `(${v.value})`} value={v.value} />
           })
         }
       }
@@ -1785,6 +1769,25 @@ const schema = reactive<FormSchema[]>([
     component: 'IconPicker',
     label: t('formDemo.default'),
     value: 'tdesign:archway'
+  },
+  {
+    field: 'field89',
+    component: 'Divider',
+    label: t('formDemo.iAgree')
+  },
+  {
+    field: 'field90',
+    component: 'IAgree',
+    label: t('formDemo.default'),
+    componentProps: {
+      text: '我同意《用户协议》',
+      link: [
+        {
+          text: '《用户协议》',
+          url: 'https://element-plus.org/'
+        }
+      ]
+    }
   }
 ])
 </script>
